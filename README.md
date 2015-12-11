@@ -5,18 +5,16 @@ Using Tabox2D class, you'll be able to create bodies and attach them textures in
 Here's an example of a simple application class using Tabox2D:
 ```java
 public class MyGdxGame extends ApplicationAdapter {
-	Tabox2D t;
-    float w, h;
-    float rad;
 
+	Tabox2D t;
+    float w ,h;
+    float rad;
 	@Override
 	public void create () {
         w = Gdx.graphics.getWidth();
         h = Gdx.graphics.getHeight();
         t = Tabox2D.getInstance();
-        t.setFilter("nearest", "linear");// Soft images.
-        // This uses a Box2DDebugRenderer to see the world,
-        // also red points shows the center of mass, cyan cyrcles the initial AABB center:
+        t.setFilter("nearest", "linear");
         t.debug();
 
         // Bodies:
@@ -28,7 +26,7 @@ public class MyGdxGame extends ApplicationAdapter {
         t.newPentagon("d", new Vector2(w / 2, h / 2), rad).setTexture("pentagon.png", "i");
         t.newHexagon ("d", new Vector2(w / 2, h / 2), rad).setTexture("hexagon.png", "i");
         t.newHeptagon("d", new Vector2(w / 2, h / 2), rad).setTexture("heptagon.png", "i");
-        t.newOctagon ("d", new Vector2(w / 2, h / 2), rad).setTexture("octagon.png", "i");
+        t.newOctagon ("d", new Vector2(0, 0), rad).setTexture("octagon.png", "i");
 
         // Irregular:
         float[] pts  = {40, 60, 60, 60, 100, 90, 70, 120, 30, 130, 20, 70},
@@ -47,7 +45,7 @@ public class MyGdxGame extends ApplicationAdapter {
 	public void render () {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        t.update();// Don't move anything just to see the cyan circle.
+        t.update();
         t.draw();
 
         // Move tabodies:
@@ -66,6 +64,7 @@ public class MyGdxGame extends ApplicationAdapter {
         t.dispose();
     }
 }
+
 ```
 
 The result would be something like:
