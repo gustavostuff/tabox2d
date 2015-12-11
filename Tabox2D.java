@@ -1,3 +1,23 @@
+/*
+ Copyright (c) 2015 Gustavo Alberto Lara Gómez
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -22,8 +42,7 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Singleton class Tabox2D
- * Created by Gustavo Lara on 16/11/15.
+ * Tabox2D, singleton class for body-texture management
  */
 public class Tabox2D {
 
@@ -92,14 +111,27 @@ public class Tabox2D {
         camera.update();
     }
 
+    /**
+     * Returns and intance of Tabox2D with its own world
+     * @return the new instance
+     */
     public static Tabox2D getInstance() {
         return getInstance(new Vector2(0, -9.8f));
     }
 
+    /**
+     * Get the list of Tabodies in the Tabox2D instance
+     * @return List class of tabodies
+     */
     public List<Tabody> getTabodies() {
         return tabodies;
     }
 
+    /**
+     * Returns a new instance with the given gravity
+     * @param gravity World's gravity in the instance
+     * @return a new instance
+     */
     public static Tabox2D getInstance(Vector2 gravity) {
         if(instance == null) {
             instance = new Tabox2D(gravity);
@@ -107,6 +139,10 @@ public class Tabox2D {
         return instance;
     }
 
+    /**
+     * Set the meter size in pixels, the grater the size, the fastest the simulation
+     * @param meterSize Size in pixels
+     */
     public void setMeterSize(float meterSize) {
         if(meterSize > 500) {
             perr("setMeterSize(), Max meterSize allowed: 500, " +
@@ -117,6 +153,11 @@ public class Tabox2D {
         adjustCamera();
     }
 
+    /**
+     * Set the image filter for textures, linear = soft, nearest = pixelated when zooming
+     * @param min The minimize mode
+     * @param mag The magnify mode
+     */
     public void setFilter(String min, String mag) {
         if(!min.equals("linear") && !min.equals("nearest")) {
             perr("setFilter(), 1st parameter must be 'linear' or 'nearest', using 'linear'");
@@ -128,6 +169,9 @@ public class Tabox2D {
         }
     }
 
+    /**
+     * Set debug mode in the simulation
+     */
     public void debug() {
         debug = true;
     }
@@ -143,6 +187,14 @@ public class Tabox2D {
     ///////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////
 
+    /**
+     * Createa a new Ball (circle shape)
+     * @param type "dynamic" or "static"
+     * @param x Center X of the ball
+     * @param y Center Y of the ball
+     * @param r Radius
+     * @return A new Tabody instance
+     */
     public Tabody newBall(String type, float x, float y, float r) {
         // Scale proportions:
         x = x / meterSize;
@@ -191,6 +243,15 @@ public class Tabox2D {
     ///////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////
 
+    /**
+     * Creates a new Box body
+     * @param type "dynamic" or "static"
+     * @param x Left-bottom corner X of the box
+     * @param y Left-bottom corner Y of the box
+     * @param w Width of the box
+     * @param h Height of the box
+     * @return A new Tabody instance
+     */
     public Tabody newBox(String type, float x, float y, float w, float h) {
         // Scale proportions:
         x = x / meterSize;
@@ -240,26 +301,68 @@ public class Tabox2D {
     ///////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////
 
+    /**
+     * Creates an Equilateral triangle with centroid = center param
+     * @param type "dynamic" or "static"
+     * @param center Center of the regular polygon
+     * @param radius Radius of the polygon
+     * @return A new Tabody instance
+     */
     public Tabody newTriangle(String type, Vector2 center, float radius) {
         return generateRegularPoly("triangle", type, center, radius);
     }
 
+    /**
+     * Creates a Square with centroid = center
+     * @param type "dynamic" or "static"
+     * @param center Center of the polygon
+     * @param radius Radius of the polygon
+     * @return A new Tabody instance
+     */
     public Tabody newSquare(String type, Vector2 center, float radius) {
         return generateRegularPoly("square", type, center, radius);
     }
 
+    /**
+     * Creates a Pentagon with centroid = center
+     * @param type "dynamic" or "static"
+     * @param center Center of the polygon
+     * @param radius Radius of the polygon
+     * @return A new Tabody instance
+     */
     public Tabody newPentagon(String type, Vector2 center, float radius) {
         return generateRegularPoly("pentagon", type, center, radius);
     }
 
+    /**
+     * Creates an Hexagon with centroid = center
+     * @param type "dynamic" or "static"
+     * @param center Center of the polygon
+     * @param radius Radius of the polygon
+     * @return A new Tabody instance
+     */
     public Tabody newHexagon(String type, Vector2 center, float radius) {
         return generateRegularPoly("hexagon", type, center, radius);
     }
 
+    /**
+     * Creates an Heptagon with centroid = center
+     * @param type "dynamic" or "static"
+     * @param center Center of the polygon
+     * @param radius Radius of the polygon
+     * @return A new Tabody instance
+     */
     public Tabody newHeptagon(String type, Vector2 center, float radius) {
         return generateRegularPoly("heptagon", type, center, radius);
     }
 
+    /**
+     * Creates an Octagon with centroid = center
+     * @param type "dynamic" or "static"
+     * @param center Center of the polygon
+     * @param radius Radius of the polygon
+     * @return A new Tabody instance
+     */
     public Tabody newOctagon(String type, Vector2 center, float radius) {
         return generateRegularPoly("octagon", type, center, radius);
     }
@@ -361,6 +464,12 @@ public class Tabox2D {
         return regularPoly;
     }
 
+    /**
+     * Creates a Polygons with the given points
+     * @param type "dynamic" or "static"
+     * @param pts points for the polygon
+     * @return A new Tabody instance
+     */
     public Tabody newPoly(String type, float[] pts) {
         // Scale proportions:
         for(int i = 0; i < pts.length; i++) {
@@ -440,10 +549,17 @@ public class Tabox2D {
     ///////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////
 
+    /**
+     * Updates simulation, default delta = Gdx.graphics.getDeltaTime()
+     */
     public void update() {
         this.update(Gdx.graphics.getDeltaTime());
     }
 
+    /**
+     * Updates the simulation with the given delta time
+     * @param delta The delta time to simulate
+     */
     public void update(float delta) {
         world.step(delta, 6, 2);
         // Move sprites:
@@ -459,11 +575,17 @@ public class Tabox2D {
         }
     }
 
+    /**
+     * Dispose the world and Box2DDebugRenderer in the simulation
+     */
     public void dispose() {
         world.dispose();
         renderer.dispose();
     }
 
+    /**
+     * Draws the world, this is, sprites and Box2DDebugRenderer shapes
+     */
     public void draw() {
         // Draw sprites:
         for(Tabody t : tabodies) {
@@ -521,6 +643,11 @@ public class Tabox2D {
         }
     }
 
+    /**
+     * Get centroid of given polygon points
+     * @param pts float[] array of points
+     * @return a Vector2 instance with the center
+     */
     public Vector2 centroidOf(float[] pts) {
         float centroidX = 0, centroidY = 0;
         for(int i = 0; i < pts.length - 1; i += 2) {
@@ -530,6 +657,11 @@ public class Tabox2D {
         return new Vector2(centroidX / pts.length / 2, centroidY / pts.length / 2);
     }
 
+    /**
+     * Get centroid of given polygon points
+     * @param pts List<Vector2D> of points
+     * @return a Vector2 instance with the center
+     */
     public Vector2 centroidOf(List<Vector2> pts) {
         float centroidX = 0, centroidY = 0;
         for(Vector2 vec : pts) {
@@ -552,6 +684,10 @@ public class Tabox2D {
         }
     }
 
+    /**
+     * Represents a Tabody object<br/>
+     * It retains a box2d Body object, the body type and a Sprite
+     */
     public class Tabody {
         Body body;
         String bodyType;// "circle", "rectangle" or "polygon".
@@ -561,22 +697,45 @@ public class Tabox2D {
         float w, h;
         float[] vertices;
 
-        public void impulseX(float impuse) {
-            linearImpulse(new Vector2(impuse, 0));
+        /**
+         * Impuse in X axis
+         * @param impulse The impulse magnitude
+         */
+        public void impulseX(float impulse) {
+            linearImpulse(new Vector2(impulse, 0));
         }
 
-        public void impulseY(float impuse) {
-            linearImpulse(new Vector2(0, impuse));
+        /**
+         * Impuse in Y axis
+         * @param impulse The impulse magnitude
+         */
+        public void impulseY(float impulse) {
+            linearImpulse(new Vector2(0, impulse));
         }
 
+        /**
+         * Impulse in the given vector
+         * @param impulse
+         */
         public void linearImpulse(Vector2 impulse) {
             linearImpulse(impulse.x, impulse.y);
         }
 
+        /**
+         * Impulse in the given components
+         * @param ix
+         * @param iy
+         */
         public void linearImpulse(float ix, float iy) {
             body.applyLinearImpulse(new Vector2(ix, iy), body.getWorldCenter(), true);
         }
 
+        /**
+         * Attach texture to Tabody object
+         * @param fileNamePath Path or file name (assets folder)
+         * @param scope Internal "i" or external "e"
+         * @return The correponding Tabody object
+         */
         public Tabody setTexture(String fileNamePath, String scope) {
             Texture texture = null;
             if(scope.toLowerCase().equals("i")) {

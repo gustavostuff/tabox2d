@@ -64,6 +64,7 @@ public class MyGdxGame extends ApplicationAdapter {
         t.dispose();
     }
 }
+
 ```
 
 The result would be something like:
