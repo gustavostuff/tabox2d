@@ -68,7 +68,13 @@ public class MyGdxGame extends ApplicationAdapter {
 
 The result would be something like:
 
-![Tabox2D example](http://s2.postimg.org/4clfux8nt/sstbx.png)
+![Tabox2D example](http://s2.postimg.org/rnq3zmovt/ss_tabox2d.png)
 
-NOTE: The API is currently in development, the example above shows the complete characteristics. Currently, polygons have issues with textures.
-Red points indicate the center of mass, cyan circles the geometric center (failing with polygons).
+***
+
+Tabox2D is just a simple wrapper and doesn't cover the whole Box2D API (directly). Currently, it only does:
+
+* Adjusts textures to bodies in terms of position, scale and rotation
+* Apply linear impulses through Tabody class
+* Make regular polygons in a simple way
+* Tabox2D.newBox() takes X and Y as the left-bottom corner, then full W and H
