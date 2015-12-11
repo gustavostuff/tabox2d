@@ -561,6 +561,14 @@ public class Tabox2D {
         float w, h;
         float[] vertices;
 
+        public void impulseX(float impuse) {
+            linearImpulse(new Vector2(impuse, 0));
+        }
+
+        public void impulseY(float impuse) {
+            linearImpulse(new Vector2(0, impuse));
+        }
+
         public void linearImpulse(Vector2 impulse) {
             linearImpulse(impulse.x, impulse.y);
         }

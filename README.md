@@ -3,6 +3,11 @@
 Tabox2D is a wrapper class to ease body-texture creation in Box2D (LibGDX). Here's an example of a simple application class using Tabox2D:
 
 ```java
+import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.math.Vector2;
+
 public class MyGdxGame extends ApplicationAdapter {
 
 	Tabox2D t;
@@ -13,11 +18,10 @@ public class MyGdxGame extends ApplicationAdapter {
         w = Gdx.graphics.getWidth();
         h = Gdx.graphics.getHeight();
         t = Tabox2D.getInstance();
-        t.setFilter("nearest", "linear");
-        t.debug();
+        t.setFilter("linear", "linear");// Soft textures.
+        t.debug();// This uses Box2DDebugRenderer, shows AABB centers and centroids.
 
-        // Bodies:
-        Vector2 centre = new Vector2(w / 2, h / 2);
+        // Bodies, "i" means Gdx.files.internal:
         rad = 40;
         t.newBall    ("d", 100, 200, rad).setTexture("marble.png", "i");
         t.newTriangle("d", new Vector2(w / 2, h / 2), rad).setTexture("triangle.png", "i");
@@ -25,7 +29,7 @@ public class MyGdxGame extends ApplicationAdapter {
         t.newPentagon("d", new Vector2(w / 2, h / 2), rad).setTexture("pentagon.png", "i");
         t.newHexagon ("d", new Vector2(w / 2, h / 2), rad).setTexture("hexagon.png", "i");
         t.newHeptagon("d", new Vector2(w / 2, h / 2), rad).setTexture("heptagon.png", "i");
-        t.newOctagon ("d", new Vector2(0, 0), rad).setTexture("octagon.png", "i");
+        t.newOctagon ("d", new Vector2(w / 2, h / 2), rad).setTexture("octagon.png", "i");
 
         // Irregular:
         float[] pts  = {40, 60, 60, 60, 100, 90, 70, 120, 30, 130, 20, 70},
@@ -50,10 +54,7 @@ public class MyGdxGame extends ApplicationAdapter {
         // Move tabodies:
         if(Gdx.input.justTouched()) {
             for(Tabox2D.Tabody b : t.getTabodies()) {
-                Vector2 force = new Vector2(
-                        MathUtils.random(-10, 10),
-                        MathUtils.random(-10, 10));
-                b.linearImpulse(force);
+                b.impulseY(3);
             }
         }
 	}
@@ -63,7 +64,6 @@ public class MyGdxGame extends ApplicationAdapter {
         t.dispose();
     }
 }
-
 ```
 
 The result would be something like:
