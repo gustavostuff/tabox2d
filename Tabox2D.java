@@ -1,26 +1,3 @@
-/*
-
-Copyright (c) 2015 Gustavo Alberto Lara Gómez
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-*/
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -44,6 +21,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Singleton class Tabox2D
+ * Created by Gustavo Lara on 16/11/15.
+ */
 public class Tabox2D {
 
     public static boolean debug = false;
@@ -60,13 +41,15 @@ public class Tabox2D {
     private int height;
     private float meterSize;
     public ShapeRenderer sr = new ShapeRenderer();
+    private String filterMin;
+    private String filterMag;
 
     private Tabox2D(Vector2 gravity) {
         width = Gdx.graphics.getWidth();
         height = Gdx.graphics.getHeight();
         meterSize = 100;// 1 metter = 100px, default.
 
-        pl("width: " + width + ", height: " + height);
+        pl("device width: " + width + ", device height: " + height);
         polyInfo = new HashMap<String, Float>();
 
         // Sides by polygon:
@@ -85,6 +68,9 @@ public class Tabox2D {
         polyInfo.put("heptagon_angle", 51.428f);
         polyInfo.put("octagon_angle", 45f);
 
+        filterMin = "linear";
+        filterMag = "linear";
+
         renderer = new Box2DDebugRenderer();
         spriteBath = new SpriteBatch();
         adjustCamera();
@@ -97,7 +83,7 @@ public class Tabox2D {
     private void adjustCamera() {
         float cameraW = width / meterSize;
         float cameraH = height / meterSize;
-        pl("cameraW: " + cameraW + ", cameraH: " + cameraH);
+        pl("Camera width: " + cameraW + ", Camera height: " + cameraH);
         camera = new OrthographicCamera(cameraW, cameraH);
         // Set at 0, 0, 0 in space:
         float camX = camera.viewportWidth / 2;
@@ -123,14 +109,28 @@ public class Tabox2D {
 
     public void setMeterSize(float meterSize) {
         if(meterSize > 500) {
-            perr("Max meterSize allowed: 500, " +
-            "using default = 100");
+            perr("setMeterSize(), Max meterSize allowed: 500, " +
+                    "using default = 100");
             return;
         }
         this.meterSize = meterSize;
         adjustCamera();
     }
 
+    public void setFilter(String min, String mag) {
+        if(!min.equals("linear") && !min.equals("nearest")) {
+            perr("setFilter(), 1st parameter must be 'linear' or 'nearest', using 'linear'");
+        } else if(!mag.equals("linear") && !mag.equals("nearest")) {
+            perr("setFilter(), 2nd parameter must be 'linear' or 'nearest', using 'linear'");
+        } else {
+            filterMin = min;
+            filterMag = mag;
+        }
+    }
+
+    public void debug() {
+        debug = true;
+    }
 
 
 
@@ -264,7 +264,7 @@ public class Tabox2D {
         return generateRegularPoly("octagon", type, center, radius);
     }
 
-    private Tabody generateRegularPoly(String polyName, String type, Vector2 center, float rad) {
+    private Tabody generateRegularPoly(String name, String type, Vector2 center, float rad) {
         // Scale proportions:
         center.set(center.x / meterSize, center.y / meterSize);
         rad /= meterSize;
@@ -274,32 +274,24 @@ public class Tabox2D {
 
         setType(defPoly, type);
 
-        defPoly.position.set(0, 0);
-        //defPoly.position.set(center.x, center.y);
-
-        Tabody regularPoly = new Tabody();
-        regularPoly.body = world.createBody(defPoly);
-        //regularPoly.body.setFixedRotation(true);
-        polygonShape = new PolygonShape();
-
         // Generate points:
         List<Vector2> pts = new ArrayList<Vector2>();
-        Vector2 p0 = new Vector2(center.x, center.y + rad);
+        Vector2 p0 = new Vector2(0, rad);
 
         float conv = MathUtils.degreesToRadians;
-        float angleInDeg = polyInfo.get(polyName + "_angle");
+        float angleInDeg = polyInfo.get(name + "_angle");
         float cos = MathUtils.cos(conv * angleInDeg);
         float sin = MathUtils.sin(conv * angleInDeg);
 
-        for(int i = 0; i < polyInfo.get(polyName); i++) {
+        for(int i = 0; i < polyInfo.get(name); i++) {
             pts.add(new Vector2(p0.x, p0.y));
-            p0.set(p0.x - center.x, p0.y - center.y);
+            p0.set(p0.x, p0.y);
 
             float newX = p0.x * cos - p0.y * sin;
             float newY = p0.x * sin + p0.y * cos;
 
-            p0.x = newX + center.x;
-            p0.y = newY + center.y;
+            p0.x = newX;
+            p0.y = newY;
         }
 
         // Get bounding box:
@@ -311,15 +303,43 @@ public class Tabox2D {
             rawPoints[i + 1] = pts.get(pointIndex).y;
             pointIndex++;
         }
-        
+
         Polygon polyForBox = new Polygon();
         polyForBox.setVertices(rawPoints);
-        Rectangle boundingRect = polyForBox.getBoundingRectangle();
-        float widthOfBox = boundingRect.getWidth();
-        float heightOfBox = boundingRect.getHeight();
 
+        //polyForBox.translate(center.x, center.y);
+
+        Rectangle boundingRect = polyForBox.getBoundingRectangle();
+        float boxX = boundingRect.x;
+        float boxY = boundingRect.y;
+        float boxW = boundingRect.getWidth();
+        float boxH = boundingRect.getHeight();
+
+        Vector2 aabbCenter = new Vector2(boxX + boxW / 2, boxY + boxH / 2);
+        Vector2 centroid = centroidOf(pts);
+
+        pf("aabb Center x: %f\n", aabbCenter.x);
+        pf("aabb Center y: %f\n", aabbCenter.y);
+
+        pf("centroid x: %f\n", centroid.x);
+        pf("centroid y: %f\n", centroid.y);
+
+
+        defPoly.position.set(0, 0);
+
+        defPoly.position.set(center.x, center.y);
+
+        Tabody regularPoly = new Tabody();
+        regularPoly.body = world.createBody(defPoly);
+        //regularPoly.body.setFixedRotation(true);
+        polygonShape = new PolygonShape();
 
         //polygonShape.setAsBox(w / 2, h / 2);
+        for(int i = 0; i < rawPoints.length - 1; i += 2) {
+            rawPoints[i] -= aabbCenter.x;
+            rawPoints[i + 1] -= aabbCenter.y;
+        }
+        //rawPoints[0] += 0.5;
         polygonShape.set(rawPoints);
 
         FixtureDef fixtureBox = new FixtureDef();
@@ -329,8 +349,8 @@ public class Tabox2D {
         fixtureBox.restitution = 0.1f;
 
         ////////////////////////////////////////
-        regularPoly.w = widthOfBox * meterSize;//radius * 2 * meterSize;
-        regularPoly.h = heightOfBox * meterSize;//radius * 2 * meterSize;
+        regularPoly.w = boxW * meterSize;//radius * 2 * meterSize;
+        regularPoly.h = boxH * meterSize;//radius * 2 * meterSize;
         regularPoly.fixture = fixtureBox;
         regularPoly.bodyType = "poly";
         ////////////////////////////////////////
@@ -340,6 +360,77 @@ public class Tabox2D {
         tabodies.add(regularPoly);
         return regularPoly;
     }
+
+    public Tabody newPoly(String type, float[] pts) {
+        // Scale proportions:
+        for(int i = 0; i < pts.length; i++) {
+            pts[i] /= meterSize;
+        }
+
+        PolygonShape polygonShape;
+        BodyDef defPoly = new BodyDef();
+
+        setType(defPoly, type);
+
+        // Get bounding box:
+
+        Polygon polyForBox = new Polygon();
+        polyForBox.setVertices(pts);
+
+        //polyForBox.translate(center.x, center.y);
+
+        Rectangle boundingRect = polyForBox.getBoundingRectangle();
+        float boxX = boundingRect.x;
+        float boxY = boundingRect.y;
+        float boxW = boundingRect.getWidth();
+        float boxH = boundingRect.getHeight();
+
+        Vector2 aabbCenter = new Vector2(boxX + boxW / 2, boxY + boxH / 2);
+        Vector2 centroid = centroidOf(pts);
+
+        pf("aabb Center x: %f\n", aabbCenter.x);
+        pf("aabb Center y: %f\n", aabbCenter.y);
+
+        pf("centroid x: %f\n", centroid.x);
+        pf("centroid y: %f\n", centroid.y);
+
+
+        defPoly.position.set(0, 0);
+
+        defPoly.position.set(aabbCenter.x, aabbCenter.y);
+
+        Tabody regularPoly = new Tabody();
+        regularPoly.body = world.createBody(defPoly);
+        //regularPoly.body.setFixedRotation(true);
+        polygonShape = new PolygonShape();
+
+        //polygonShape.setAsBox(w / 2, h / 2);
+        for(int i = 0; i < pts.length - 1; i += 2) {
+            pts[i] -= aabbCenter.x;
+            pts[i + 1] -= aabbCenter.y;
+        }
+        //rawPoints[0] += 0.5;
+        polygonShape.set(pts);
+
+        FixtureDef fixtureBox = new FixtureDef();
+        fixtureBox.shape = polygonShape;
+        fixtureBox.density = 1;
+        fixtureBox.friction = 1;
+        fixtureBox.restitution = 0.1f;
+
+        ////////////////////////////////////////
+        regularPoly.w = boxW * meterSize;//radius * 2 * meterSize;
+        regularPoly.h = boxH * meterSize;//radius * 2 * meterSize;
+        regularPoly.fixture = fixtureBox;
+        regularPoly.bodyType = "poly";
+        ////////////////////////////////////////
+
+        regularPoly.body.createFixture(fixtureBox);
+        polygonShape.dispose();
+        tabodies.add(regularPoly);
+        return regularPoly;
+    }
+
 
 
 
@@ -430,6 +521,24 @@ public class Tabox2D {
         }
     }
 
+    public Vector2 centroidOf(float[] pts) {
+        float centroidX = 0, centroidY = 0;
+        for(int i = 0; i < pts.length - 1; i += 2) {
+            centroidX += pts[i];
+            centroidY += pts[i + 1];
+        }
+        return new Vector2(centroidX / pts.length / 2, centroidY / pts.length / 2);
+    }
+
+    public Vector2 centroidOf(List<Vector2> pts) {
+        float centroidX = 0, centroidY = 0;
+        for(Vector2 vec : pts) {
+            centroidX += vec.x;
+            centroidY += vec.y;
+        }
+        return new Vector2(centroidX / pts.size(), centroidY / pts.size());
+    }
+
     private void setType(BodyDef def, String type) {
         type = type.toLowerCase();
         if(type.equals("d")) {
@@ -452,7 +561,41 @@ public class Tabox2D {
         float w, h;
         float[] vertices;
 
-        public Tabody setTexture(Texture texture) {
+        public void linearImpulse(Vector2 impulse) {
+            linearImpulse(impulse.x, impulse.y);
+        }
+
+        public void linearImpulse(float ix, float iy) {
+            body.applyLinearImpulse(new Vector2(ix, iy), body.getWorldCenter(), true);
+        }
+
+        public Tabody setTexture(String fileNamePath, String scope) {
+            Texture texture = null;
+            if(scope.toLowerCase().equals("i")) {
+                texture = new Texture(Gdx.files.internal(fileNamePath));
+            } else if(scope.toLowerCase().equals("e")) {
+                texture = new Texture(Gdx.files.external(fileNamePath));
+            } else {
+                perr("setTexture(), second parameter must be 'i' or 'e', using 'i'");
+                texture = new Texture(Gdx.files.internal(fileNamePath));
+            }
+
+            // Filter for the texture:
+            Texture.TextureFilter tMin = null;
+            Texture.TextureFilter tMag = null;
+            if(filterMin.equals("linear")) {
+                tMin = Texture.TextureFilter.Linear;
+            } else {
+                tMin = Texture.TextureFilter.Nearest;
+            }
+
+            if(filterMag.equals("linear")) {
+                tMag = Texture.TextureFilter.Linear;
+            } else {
+                tMag = Texture.TextureFilter.Nearest;
+            }
+            texture.setFilter(tMin, tMag);
+
             this.sprite = new Sprite(texture);
             float scaleX = this.w / this.sprite.getWidth();
             float scaleY = this.h / this.sprite.getHeight();
@@ -472,6 +615,9 @@ public class Tabox2D {
 
     private static void pl(Object o){
         System.out.println(o);
+    }
+    private static void pf(String f, Object o){
+        System.out.printf(f, o);
     }
 
     private static void perr(Object o){

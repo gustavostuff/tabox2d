@@ -1,39 +1,69 @@
 ![Tabox2D logo](http://s22.postimg.org/qm3cr4ma5/logo_Tabox2_D.png)
 
-Tabox2D is currently in development.
-
 Using Tabox2D class, you'll be able to create bodies and attach them textures in an easier way.
 
-Using the code below we create some bodies with some textures attached:
+Here's an example of a simple application class using Tabox2D:
 ```java
-w = Gdx.graphics.getWidth();
-h = Gdx.graphics.getHeight();
+public class MyGdxGame extends ApplicationAdapter {
 
-t = Tabox2D.getInstance();
-t.debug = true;
-rad = 35;
-force = 500;
+	Tabox2D t;
+    float w ,h;
+    float rad;
+	@Override
+	public void create () {
+        w = Gdx.graphics.getWidth();
+        h = Gdx.graphics.getHeight();
+        t = Tabox2D.getInstance();
+        t.setFilter("nearest", "linear");
+        t.debug();
 
-Texture ballTexture = new Texture(Gdx.files.internal("ball.png"));
-Texture triangleTexture = new Texture(Gdx.files.internal("triangle.png"));
-Texture pentagonTexture = new Texture(Gdx.files.internal("pentagon.png"));
-Texture octagonTexture = new Texture(Gdx.files.internal("octagon.png"));
-Texture bricksTexture = new Texture(Gdx.files.internal("bricks.png"));
+        // Bodies:
+        Vector2 centre = new Vector2(w / 2, h / 2);
+        rad = 40;
+        t.newBall    ("d", 100, 200, rad).setTexture("marble.png", "i");
+        t.newTriangle("d", new Vector2(w / 2, h / 2), rad).setTexture("triangle.png", "i");
+        t.newSquare  ("d", new Vector2(w / 2, h / 2), rad).setTexture("square.png", "i");
+        t.newPentagon("d", new Vector2(w / 2, h / 2), rad).setTexture("pentagon.png", "i");
+        t.newHexagon ("d", new Vector2(w / 2, h / 2), rad).setTexture("hexagon.png", "i");
+        t.newHeptagon("d", new Vector2(w / 2, h / 2), rad).setTexture("heptagon.png", "i");
+        t.newOctagon ("d", new Vector2(w / 2, h / 2), rad).setTexture("octagon.png", "i");
 
+        // Irregular:
+        float[] pts  = {40, 60, 60, 60, 100, 90, 70, 120, 30, 130, 20, 70},
+                pts2 = {30, 50, 90, 50, 110, 70, 90, 90, 30, 90, 10, 70};
+        t.newPoly("d", pts).setTexture("irr.png", "i");
+        t.newPoly("d", pts2);// No texture.
 
-// Ball:
-ball = t.newBall("d", w / 2, h / 2, rad).setTexture(ballTexture);
+        // Walls:
+        t.newBox("s", 0, 0, w, 30);// Down.
+        t.newBox("s", 0, h - 30, w, 30);// Up.
+        t.newBox("s", 0, 30, 30, h - 60);// Left.
+        t.newBox("s", w - 30, 30, 30, h - 60);// Right.
+	}
 
-// Walls, ceiling and floor:
-t.newBox("s", 10, 60, 20, h - 40);
-t.newBox("s", 10, 10, w - 20, 50).setTexture(bricksTexture);// Floor.
-t.newBox("s", w - 30, 60, 20, h - 40);
-t.newBox("s", 10, h - 50, w - 20, 20);
+	@Override
+	public void render () {
+        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        t.update();// Don't move anything just to see the cyan circle.
+        t.draw();
 
-// Regular polygons:
-t.newTriangle("d", new Vector2(100, 100), rad).setTexture(triangleTexture);
-t.newPentagon("d", new Vector2(100, 200), rad).setTexture(pentagonTexture);
-t.newOctagon("d", new Vector2(100, 300), rad).setTexture(octagonTexture);
+        // Move tabodies:
+        if(Gdx.input.justTouched()) {
+            for(Tabox2D.Tabody b : t.getTabodies()) {
+                Vector2 force = new Vector2(
+                        MathUtils.random(-10, 10),
+                        MathUtils.random(-10, 10));
+                b.linearImpulse(force);
+            }
+        }
+	}
+
+    @Override
+    public void dispose() {
+        t.dispose();
+    }
+}
 ```
 
 The result would be something like:
