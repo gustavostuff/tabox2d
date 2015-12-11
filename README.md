@@ -5,16 +5,18 @@ Using Tabox2D class, you'll be able to create bodies and attach them textures in
 Here's an example of a simple application class using Tabox2D:
 ```java
 public class MyGdxGame extends ApplicationAdapter {
-
 	Tabox2D t;
-    float w ,h;
+    float w, h;
     float rad;
+
 	@Override
 	public void create () {
         w = Gdx.graphics.getWidth();
         h = Gdx.graphics.getHeight();
         t = Tabox2D.getInstance();
-        t.setFilter("nearest", "linear");
+        t.setFilter("nearest", "linear");// Soft images.
+        // This uses a Box2DDebugRenderer to see the world,
+        // also red points shows the center of mass, cyan cyrcles the initial AABB center:
         t.debug();
 
         // Bodies:
