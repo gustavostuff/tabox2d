@@ -1,6 +1,6 @@
 ![Tabox2D logo](http://s22.postimg.org/qm3cr4ma5/logo_Tabox2_D.png)
 
-Tabox2D is a wrapper class to ease body-texture creation in Box2D (LibGDX). Here's an example of a simple application class using Tabox2D:
+Tabox2D is a wrapper class to ease body-texture management in Box2D (LibGDX). Here's an example of a simple application class using Tabox2D:
 
 ```java
 import com.badlogic.gdx.ApplicationAdapter;
