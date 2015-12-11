@@ -1,8 +1,7 @@
 ![Tabox2D logo](http://s22.postimg.org/qm3cr4ma5/logo_Tabox2_D.png)
 
-Using Tabox2D class, you'll be able to create bodies and attach them textures in an easier way.
+Tabox2D is a wrapper class to ease body-texture creation in Box2D (LibGDX). Here's an example of a simple application class using Tabox2D:
 
-Here's an example of a simple application class using Tabox2D:
 ```java
 public class MyGdxGame extends ApplicationAdapter {
 
