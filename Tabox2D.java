@@ -1,6 +1,6 @@
 /*
     Copyright (c) 2015 Gustavo Alberto Lara Gómez
-    
+
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
     in the Software without restriction, including without limitation the rights
@@ -19,8 +19,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
 */
-
-package com.tavuntu.example;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -66,6 +64,20 @@ public class Tabox2D {
     public ShapeRenderer sr = new ShapeRenderer();
     private String filterMin;
     private String filterMag;
+
+
+
+
+
+
+
+
+    ///////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////
+    //  Main functions:
+    ///////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////
+
 
     private Tabox2D(Vector2 gravity) {
         width = Gdx.graphics.getWidth();
@@ -116,8 +128,8 @@ public class Tabox2D {
     }
 
     /**
-     * Returns and intance of Tabox2D with its own world
-     * @return the new instance
+     * Returns and instance of Tabox2D with its own world
+     * @return The new instance
      */
     public static Tabox2D getInstance() {
         return getInstance(new Vector2(0, -9.8f));
@@ -144,7 +156,7 @@ public class Tabox2D {
     }
 
     /**
-     * Set the meter size in pixels, the grater the size, the fastest the simulation
+     * Set the meter size in pixels
      * @param meterSize Size in pixels
      */
     public void setMeterSize(float meterSize) {
@@ -185,6 +197,8 @@ public class Tabox2D {
 
 
 
+
+
     ///////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////
     //  Ball creator:
@@ -192,7 +206,7 @@ public class Tabox2D {
     ///////////////////////////////////////////////////////////////
 
     /**
-     * Createa a new Ball (circle shape)
+     * Creates a new Ball (circle shape)
      * @param type "dynamic" or "static"
      * @param x Center X of the ball
      * @param y Center Y of the ball
@@ -468,6 +482,15 @@ public class Tabox2D {
         return regularPoly;
     }
 
+
+
+
+    ///////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////
+    //  Polygon creator:
+    ///////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////
+
     /**
      * Creates a Polygons with the given points
      * @param type "dynamic" or "static"
@@ -602,35 +625,6 @@ public class Tabox2D {
                 renderer.render(world, camera.combined);
                 sr.begin(ShapeRenderer.ShapeType.Filled);
                 sr.setAutoShapeType(true);
-                //sr.setColor(Color.DARK_GRAY);
-                if(t.bodyType.equals("poly")) {
-                    /*
-                    sr.setColor(Color.MAROON);
-                    PolygonShape ps = (PolygonShape)t.body.getFixtureList().get(0).getShape();
-                    int vc = ps.getVertexCount();
-                    Polygon polyAux = new Polygon();
-                    Vector2 tmp = new Vector2();
-                    int vertIndex = 0;
-                    float[] vertices = new float[vc * 2];
-                    for(int i = 0; i < vertices.length - 1; i+= 2) {
-                        ps.getVertex(vertIndex, tmp);
-                        vertices[i] = tmp.x * meterSize;
-                        vertices[i + 1] = tmp.y * meterSize;
-                        vertIndex++;
-                    }
-                    //pl(vertices.length);
-                    polyAux.setVertices(vertices);
-                    Rectangle boxAux = polyAux.getBoundingRectangle();
-                    polyAux.setOrigin(boxAux.x + boxAux.width / 2, boxAux.y + boxAux.height / 2);
-                    polyAux.setRotation(t.body.getAngle() * MathUtils.radiansToDegrees);
-                    polyAux.setPosition(
-                            t.body.getPosition().x * meterSize,
-                            t.body.getPosition().y * meterSize);
-                    float[] trans = polyAux.getTransformedVertices();
-                    sr.polygon(trans);
-                    */
-                }
-
                 sr.setColor(Color.RED);
                 // Center of mass:
                 sr.circle(
@@ -789,6 +783,8 @@ public class Tabox2D {
             return texture(fileNamePath, scope, 1.05f);
         }
     }
+
+
 
     @Override
     public Object clone() {
