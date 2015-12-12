@@ -8,44 +8,44 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.math.Vector2;
 
-public class MyGdxGame extends ApplicationAdapter {
-
-	Tabox2D t;
+public class Box2DTest extends ApplicationAdapter {
+    Tabox2D t;
     float w ,h;
     float rad;
-	@Override
-	public void create () {
+    @Override
+    public void create () {
         w = Gdx.graphics.getWidth();
         h = Gdx.graphics.getHeight();
         t = Tabox2D.getInstance();
         t.setFilter("linear", "linear");// Soft textures.
-        t.debug();// This uses Box2DDebugRenderer, shows AABB centers and centroids.
+        // This uses Box2DDebugRenderer, shows AABB centers and centroids:
+        //t.debug();
 
         // Bodies, "i" means Gdx.files.internal:
-        rad = 40;
-        t.newBall    ("d", 100, 200, rad).setTexture("marble.png", "i");
-        t.newTriangle("d", new Vector2(w / 2, h / 2), rad).setTexture("triangle.png", "i");
-        t.newSquare  ("d", new Vector2(w / 2, h / 2), rad).setTexture("square.png", "i");
-        t.newPentagon("d", new Vector2(w / 2, h / 2), rad).setTexture("pentagon.png", "i");
-        t.newHexagon ("d", new Vector2(w / 2, h / 2), rad).setTexture("hexagon.png", "i");
-        t.newHeptagon("d", new Vector2(w / 2, h / 2), rad).setTexture("heptagon.png", "i");
-        t.newOctagon ("d", new Vector2(w / 2, h / 2), rad).setTexture("octagon.png", "i");
+        rad = w / 16;
+        t.newBall    ("d", 100, 200, rad).texture("ball.png", "i");
+        t.newTriangle("d", new Vector2(w / 2, h / 2), rad).texture("triangle.png", "i");
+        t.newSquare  ("d", new Vector2(w / 2, h / 2), rad).texture("square.png", "i");
+        t.newPentagon("d", new Vector2(w / 2, h / 2), rad).texture("pentagon.png", "i");
+        t.newHexagon ("d", new Vector2(w / 2, h / 2), rad).texture("hexagon.png", "i");
+        t.newHeptagon("d", new Vector2(w / 2, h / 2), rad).texture("heptagon.png", "i");
+        t.newOctagon ("d", new Vector2(w / 2, h / 2), rad).texture("octagon.png", "i");
 
         // Irregular:
         float[] pts  = {40, 60, 60, 60, 100, 90, 70, 120, 30, 130, 20, 70},
                 pts2 = {30, 50, 90, 50, 110, 70, 90, 90, 30, 90, 10, 70};
-        t.newPoly("d", pts).setTexture("irr.png", "i");
-        t.newPoly("d", pts2);// No texture.
+        t.newPoly("d", pts);// No texture.
+        t.newPoly("d", pts2).texture("irr1.png", "i");
 
         // Walls:
         t.newBox("s", 0, 0, w, 30);// Down.
         t.newBox("s", 0, h - 30, w, 30);// Up.
         t.newBox("s", 0, 30, 30, h - 60);// Left.
         t.newBox("s", w - 30, 30, 30, h - 60);// Right.
-	}
+    }
 
-	@Override
-	public void render () {
+    @Override
+    public void render () {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         t.update();
@@ -57,19 +57,23 @@ public class MyGdxGame extends ApplicationAdapter {
                 b.impulseY(3);
             }
         }
-	}
+    }
 
     @Override
     public void dispose() {
         t.dispose();
     }
-}
 
+}
 ```
 
 The result would be something like:
 
-![Tabox2D example](http://s2.postimg.org/rnq3zmovt/ss_tabox2d.png)
+![Tabox2D example](http://s30.postimg.org/5ma3zto9d/ss1.png)
+
+In debug mode we see bodies, center of mass and the initial AABB center:
+
+![Tabox2D example](http://s7.postimg.org/ucj5uxiej/ss2.png)
 
 ***
 

@@ -1,23 +1,26 @@
 /*
- Copyright (c) 2015 Gustavo Alberto Lara Gómez
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+    Copyright (c) 2015 Gustavo Alberto Lara Gómez
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+    
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+    THE SOFTWARE.
+*/
 
- The above copyright notice and this permission notice shall be included in
- all copies or substantial portions of the Software.
+package com.tavuntu.example;
 
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.
- */
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -170,7 +173,7 @@ public class Tabox2D {
     }
 
     /**
-     * Set debug mode in the simulation
+     * Set debug mode in the simulation, it shows body shapes, AABB centers and centroids
      */
     public void debug() {
         debug = true;
@@ -731,19 +734,20 @@ public class Tabox2D {
         }
 
         /**
-         * Attach texture to Tabody object
-         * @param fileNamePath Path or file name (assets folder)
+         * Attach a texture to the Tabody object
+         * @param fileNamePath Path or name of the file
          * @param scope Internal "i" or external "e"
-         * @return The correponding Tabody object
+         * @param gap Gap (in percentage) of the image width respect to real body dimensions
+         * @return Tabody object
          */
-        public Tabody setTexture(String fileNamePath, String scope) {
+        public Tabody texture(String fileNamePath, String scope, float gap) {
             Texture texture = null;
             if(scope.toLowerCase().equals("i")) {
                 texture = new Texture(Gdx.files.internal(fileNamePath));
             } else if(scope.toLowerCase().equals("e")) {
                 texture = new Texture(Gdx.files.external(fileNamePath));
             } else {
-                perr("setTexture(), second parameter must be 'i' or 'e', using 'i'");
+                perr("texture(), second parameter must be 'i' or 'e', using 'i'");
                 texture = new Texture(Gdx.files.internal(fileNamePath));
             }
 
@@ -764,14 +768,24 @@ public class Tabox2D {
             texture.setFilter(tMin, tMag);
 
             this.sprite = new Sprite(texture);
-            float scaleX = this.w / this.sprite.getWidth();
-            float scaleY = this.h / this.sprite.getHeight();
+            float scaleX = this.w / this.sprite.getWidth() * gap;
+            float scaleY = this.h / this.sprite.getHeight() * gap;
             float posX = this.body.getPosition().x * meterSize;
             float posY = this.body.getPosition().y * meterSize;
             sprite.setOrigin(texture.getWidth() / 2, texture.getHeight() / 2);
             sprite.setPosition(posX, posY);
             sprite.setScale(scaleX, scaleY);
             return this;
+        }
+
+        /**
+         * Attach a texture to the Tabody object
+         * @param fileNamePath Path or name of the file
+         * @param scope Internal "i" or external "e"
+         * @return Tabody object
+         */
+        public Tabody texture(String fileNamePath, String scope) {
+            return texture(fileNamePath, scope, 1.05f);
         }
     }
 
