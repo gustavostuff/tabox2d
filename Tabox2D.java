@@ -20,6 +20,8 @@
     THE SOFTWARE.
 */
 
+package com.tavuntu.example;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -784,7 +786,7 @@ public class Tabox2D {
         }
     }
 
-
+    
 
     @Override
     public Object clone() {
