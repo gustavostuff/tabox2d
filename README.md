@@ -91,9 +91,9 @@ Tabox2D does this:
 * Uses the Tabody entity, easier to manage than a normal Body
 * Attaches textures to bodies in terms of position, scale and rotation
 * Applies linear impulses through Tabody class
-* Make regular/irregluar polygons in a simple way
+* Makes regular/irregluar polygons in a simple way
 * Tabox2D.newBox() takes X and Y as the left-bottom corner, then full W and H
-* Create multi-shaped bodies in one line
+* Creates multi-shaped bodies in one line
 
 it doesn't:
 
