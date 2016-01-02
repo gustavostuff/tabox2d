@@ -1,4 +1,4 @@
-![Tabox2D logo](http://s22.postimg.org/qm3cr4ma5/logo_Tabox2_D.png)
+![Tabox2D logo](http://s10.postimg.org/v5tgsq7fd/logo_Tabox2_D.png)
 
 Tabox2D is a wrapper class to ease body-texture management in Box2D (LibGDX).
 
