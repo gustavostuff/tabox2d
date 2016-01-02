@@ -84,15 +84,13 @@ The result would be something like:
 
 ![Tabox2D example](http://s18.postimg.org/7zff3vw89/image.png)
 
-
-
 ***
 
 Tabox2D does this:
 
 * Uses the Tabody entity, easier to manage than a normal Body
-* Adjusts textures to bodies in terms of position, scale and rotation
-* Apply linear impulses through Tabody class
+* Attaches textures to bodies in terms of position, scale and rotation
+* Applies linear impulses through Tabody class
 * Make regular/irregluar polygons in a simple way
 * Tabox2D.newBox() takes X and Y as the left-bottom corner, then full W and H
 * Create multi-shaped bodies in one line
