@@ -55,13 +55,13 @@ public class Box2DTest extends ApplicationAdapter {
             t.newBox("d", 420, 200, 30, 150)
         ).texture("bucket.png");
 
-        Tabody fan = t.combine("d",
+        Tabody cross = t.combine("d",
             t.newBox("d", 500, 130, 40, 40),
             t.newBox("d", 500, 110, 40, 20),
             t.newBox("d", 500, 170, 40, 20),
             t.newBox("d", 480, 130, 20, 40),
             t.newBox("d", 540, 130, 20, 40)
-        ).texture("fan.png");
+        ).texture("cross.png");
 
         //t.destroy(bucket);// Destroys a Tabody.
     }
