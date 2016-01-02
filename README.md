@@ -5,8 +5,6 @@ Tabox2D is a wrapper class to ease body-texture management in Box2D (LibGDX).
 Here's an example of an application class using Tabox2D:
 
 ```java
-package com.tavuntu.example;
-
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
@@ -34,13 +32,13 @@ public class Box2DTest extends ApplicationAdapter {
 
         rad = w / 16;
         // Regular bodies:
-        t.newSquare("d", 100, 100, rad).texture("square.png");
+        t.newSquare("d", 100, 100, rad).texture("square.png").rotate(45);// 1/8 turn.
         t.newPentagon("d", 100, 200, rad).texture("pentagon.png").density(0.1f);// Light.
         t.newHexagon("d", 100, 300, rad).texture("hexagon.png").friction(0);// Like ice.
         t.newHeptagon("d", 100, 400, rad).texture("heptagon.png").restitution(0.9f);// Bouncy.
         t.newOctagon("d", 200, 200, rad).texture("octagon.png");
         t.newBall("d", 200, 300, rad).texture("ball.png");
-        t.newTriangle("d", 200, 400, rad).texture("triangle.png");
+        t.newTriangle("d", 200, 400, rad).texture("triangle.png").forceY(-10);// Likes the floor.
 
         // Irregular:
         float[] pts1 = {160, 50, 220, 50, 240, 70, 220, 90, 160, 90, 140, 70},
@@ -56,11 +54,9 @@ public class Box2DTest extends ApplicationAdapter {
         ).texture("bucket.png");
 
         Tabody cross = t.combine("d",
-            t.newBox("d", 500, 130, 40, 40),
-            t.newBox("d", 500, 110, 40, 20),
-            t.newBox("d", 500, 170, 40, 20),
-            t.newBox("d", 480, 130, 20, 40),
-            t.newBox("d", 540, 130, 20, 40)
+            t.newBox("d", 500, 130, 40, 80),
+            t.newBox("d", 480, 150, 20, 40),
+            t.newBox("d", 540, 150, 20, 40)
         ).texture("cross.png");
 
         //t.destroy(bucket);// Destroys a Tabody.

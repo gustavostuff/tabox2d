@@ -45,6 +45,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import javafx.scene.control.Tab;
+
 /**
  * Tabox2D, singleton class for body-texture management
  */
@@ -702,6 +704,10 @@ public class Tabox2D {
                 t.sprite.setPosition(xb, yb);
                 t.sprite.setRotation(t.body.getAngle() * MathUtils.radiansToDegrees);
             }
+            // Constant force (using velocity vector):
+            if(! t.velocity.equals(Vector2.Zero)) {
+                t.body.setLinearVelocity(t.velocity);
+            }
         }
     }
 
@@ -848,40 +854,43 @@ public class Tabox2D {
         String bodyType;// "circle", "rectangle" or "polygon".
         Sprite sprite;
         FixtureDef fixture;
-        Vector2 geomCenter;
+        Vector2 velocity = Vector2.Zero;
         float w, h;
-        float[] vertices;
 
         /**
          * Impuse in X axis
          * @param impulse The impulse magnitude
+         * @return This Tabody
          */
-        public void impulseX(float impulse) {
-            impulse(new Vector2(impulse, 0));
+        public Tabody impulseX(float impulse) {
+            return impulse(new Vector2(impulse, 0));
         }
 
         /**
          * Impuse in Y axis
          * @param impulse The impulse magnitude
+         * @return This Tabody
          */
-        public void impulseY(float impulse) {
-            impulse(new Vector2(0, impulse));
+        public Tabody impulseY(float impulse) {
+            return impulse(new Vector2(0, impulse));
         }
 
         /**
          * Impulse in the given vector
          * @param impulse The impulse magnitude
+         * @return This Tabody
          */
-        public void impulse(Vector2 impulse) {
-            impulse(impulse.x, impulse.y);
+        public Tabody impulse(Vector2 impulse) {
+            return impulse(impulse.x, impulse.y);
         }
 
         /**
          * Impulse in the given components
          * @param ix Impulse magnitude in X axis
          * @param iy Impulse magnitude in Y axis
+         * @return This Tabody
          */
-        public void impulse(float ix, float iy) {
+        public Tabody impulse(float ix, float iy) {
             float forceMultiplier = 1;
             if(!rawForces) {
                 forceMultiplier = body.getMass();
@@ -889,6 +898,62 @@ public class Tabox2D {
             body.applyLinearImpulse(
                     new Vector2(ix * forceMultiplier, iy * forceMultiplier),
                     body.getWorldCenter(), true);
+            return this;
+        }
+
+        /**
+         * Sets a force in X axis
+         * @param f The force
+         * @return This Tabody
+         */
+        public Tabody forceX(float f) {
+            return force(f, 0);
+        }
+
+        /**
+         * Sets a force in Y axis
+         * @param f The force
+         * @return This Tabody
+         */
+        public Tabody forceY(float f) {
+            return force(0, f);
+        }
+
+        /**
+         * Sets a force in the given vector
+         * @param f The force
+         * @return This Tabody
+         */
+        public Tabody force(Vector2 f) {
+            return force(f.x, f.y);
+        }
+
+        /**
+         * May the force be with this Tabody
+         * @param fx Force in X
+         * @param fy Force in Y
+         * @return This Tabody
+         */
+        public Tabody force(float fx, float fy) {
+            float forceMultiplier = 1;
+            if(!rawForces) {
+                forceMultiplier = body.getMass();
+            }
+            velocity = new Vector2(fx, fy);
+            return this;
+        }
+
+        /**
+         * Rotates the Tabody around the AABB centre
+         * @param degrees Angle in degrees
+         * @return This Tabody
+         */
+        public Tabody rotate(float degrees) {
+            body.setTransform(
+                    body.getPosition(),
+                    MathUtils.degreesToRadians * degrees
+            );
+            return this;
         }
 
         /**
