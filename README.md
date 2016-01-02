@@ -5,6 +5,8 @@ Tabox2D is a wrapper class to ease body-texture management in Box2D (LibGDX).
 Here's an example of an application class using Tabox2D:
 
 ```java
+package com.tavuntu.example;
+
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
@@ -53,6 +55,14 @@ public class Box2DTest extends ApplicationAdapter {
             t.newBox("d", 420, 200, 30, 150)
         ).texture("bucket.png");
 
+        Tabody fan = t.combine("d",
+            t.newBox("d", 500, 130, 40, 40),
+            t.newBox("d", 500, 110, 40, 20),
+            t.newBox("d", 500, 170, 40, 20),
+            t.newBox("d", 480, 130, 20, 40),
+            t.newBox("d", 540, 130, 20, 40)
+        ).texture("fan.png");
+
         //t.destroy(bucket);// Destroys a Tabody.
     }
 
@@ -82,7 +92,7 @@ public class Box2DTest extends ApplicationAdapter {
 
 The result would be something like:
 
-![Tabox2D example](http://s18.postimg.org/7zff3vw89/image.png)
+![Tabox2D example](http://s27.postimg.org/gatt0as8z/ss1.png)
 
 ***
 
