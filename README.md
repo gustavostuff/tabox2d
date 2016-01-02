@@ -1,6 +1,6 @@
 ![Tabox2D logo](http://s10.postimg.org/v5tgsq7fd/logo_Tabox2_D.png)
 
-Tabox2D is a wrapper class to ease body-texture management in Box2D (LibGDX).
+Inspired by [AnAL.lua](https://love2d.org/wiki/AnAL) and [FlxBox2D](https://github.com/flixel-gdx/flixel-gdx-box2d) Tabox2D was born, a wrapper class to ease body-texture management in Box2D (LibGDX).
 
 Here's an example of an application class using Tabox2D:
 
