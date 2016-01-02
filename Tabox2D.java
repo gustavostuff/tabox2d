@@ -35,6 +35,8 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.EdgeShape;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
@@ -48,7 +50,7 @@ import java.util.List;
  */
 public class Tabox2D {
 
-    public static boolean debug = false;
+    private boolean debug = false;
 
     private static HashMap<String, Float> polyInfo;
 
@@ -58,16 +60,13 @@ public class Tabox2D {
     private World world;
     private SpriteBatch spriteBath;
     private List<Tabody> tabodies;
+    private ShapeRenderer sr;
+    private String filterMin;
+    private String filterMag;
     private int width;
     private int height;
     private float meterSize;
-    public ShapeRenderer sr = new ShapeRenderer();
-    private String filterMin;
-    private String filterMag;
-
-
-
-
+    private boolean rawForces;
 
 
 
@@ -83,9 +82,8 @@ public class Tabox2D {
         width = Gdx.graphics.getWidth();
         height = Gdx.graphics.getHeight();
         meterSize = 100;// 1 metter = 100px, default.
-
-        pl("device width: " + width + ", device height: " + height);
         polyInfo = new HashMap<String, Float>();
+        rawForces = false;
 
         // Sides by polygon:
         polyInfo.put("triangle", 3f);
@@ -107,6 +105,7 @@ public class Tabox2D {
         filterMag = "linear";
 
         renderer = new Box2DDebugRenderer();
+        sr = new ShapeRenderer();
         spriteBath = new SpriteBatch();
         adjustCamera();
         tabodies = new ArrayList<Tabody>();
@@ -118,7 +117,6 @@ public class Tabox2D {
     private void adjustCamera() {
         float cameraW = width / meterSize;
         float cameraH = height / meterSize;
-        pl("Camera width: " + cameraW + ", Camera height: " + cameraH);
         camera = new OrthographicCamera(cameraW, cameraH);
         // Set at 0, 0, 0 in space:
         float camX = camera.viewportWidth / 2;
@@ -156,12 +154,20 @@ public class Tabox2D {
     }
 
     /**
+     * If false, impulse is multiplied by the Tabody mass (false as default)
+     * @param b If true, the forces are interpreted as usual in Box2D
+     */
+    public void setRawForces(boolean b) {
+        this.rawForces = b;
+    }
+
+    /**
      * Set the meter size in pixels
      * @param meterSize Size in pixels
      */
     public void setMeterSize(float meterSize) {
         if(meterSize > 500) {
-            perr("setMeterSize(), Max meterSize allowed: 500, " +
+            System.err.println("setMeterSize(), Max meterSize allowed: 500, " +
                     "using default = 100");
             return;
         }
@@ -176,9 +182,9 @@ public class Tabox2D {
      */
     public void setFilter(String min, String mag) {
         if(!min.equals("linear") && !min.equals("nearest")) {
-            perr("setFilter(), 1st parameter must be 'linear' or 'nearest', using 'linear'");
+            System.err.println("setFilter(), 1st parameter must be 'linear' or 'nearest', using 'linear'");
         } else if(!mag.equals("linear") && !mag.equals("nearest")) {
-            perr("setFilter(), 2nd parameter must be 'linear' or 'nearest', using 'linear'");
+            System.err.println("setFilter(), 2nd parameter must be 'linear' or 'nearest', using 'linear'");
         } else {
             filterMin = min;
             filterMag = mag;
@@ -235,7 +241,7 @@ public class Tabox2D {
         fixtureBall.shape = circleShape;
         fixtureBall.density = 1;
         fixtureBall.friction = 1;
-        fixtureBall.restitution = 0.5f;//0.2f;
+        fixtureBall.restitution = 0;
 
         ////////////////////////////////////////
         ball.w = r * 2 * meterSize;
@@ -293,7 +299,7 @@ public class Tabox2D {
         fixtureBox.shape = polygonShape;
         fixtureBox.density = 1;
         fixtureBox.friction = 1;
-        fixtureBox.restitution = 0.2f;
+        fixtureBox.restitution = 0;
 
         ////////////////////////////////////////
         box.w = w * meterSize;
@@ -322,72 +328,79 @@ public class Tabox2D {
     /**
      * Creates an Equilateral triangle with centroid = center param
      * @param type "dynamic" or "static"
-     * @param center Center of the regular polygon
+     * @param x X Center of the regular polygon
+     * @param y Y Center of the regular polygon
      * @param radius Radius of the polygon
      * @return A new Tabody instance
      */
-    public Tabody newTriangle(String type, Vector2 center, float radius) {
-        return generateRegularPoly("triangle", type, center, radius);
+    public Tabody newTriangle(String type, float x, float y, float radius) {
+        return generateRegularPoly("triangle", type, x, y, radius);
     }
 
     /**
      * Creates a Square with centroid = center
      * @param type "dynamic" or "static"
-     * @param center Center of the polygon
+     * @param x X Center of the regular polygon
+     * @param y Y Center of the regular polygon
      * @param radius Radius of the polygon
      * @return A new Tabody instance
      */
-    public Tabody newSquare(String type, Vector2 center, float radius) {
-        return generateRegularPoly("square", type, center, radius);
+    public Tabody newSquare(String type, float x, float y, float radius) {
+        return generateRegularPoly("square", type, x, y, radius);
     }
 
     /**
      * Creates a Pentagon with centroid = center
      * @param type "dynamic" or "static"
-     * @param center Center of the polygon
+     * @param x X Center of the regular polygon
+     * @param y Y Center of the regular polygon
      * @param radius Radius of the polygon
      * @return A new Tabody instance
      */
-    public Tabody newPentagon(String type, Vector2 center, float radius) {
-        return generateRegularPoly("pentagon", type, center, radius);
+    public Tabody newPentagon(String type, float x, float y, float radius) {
+        return generateRegularPoly("pentagon", type, x, y, radius);
     }
 
     /**
      * Creates an Hexagon with centroid = center
      * @param type "dynamic" or "static"
-     * @param center Center of the polygon
+     * @param x X Center of the regular polygon
+     * @param y Y Center of the regular polygon
      * @param radius Radius of the polygon
      * @return A new Tabody instance
      */
-    public Tabody newHexagon(String type, Vector2 center, float radius) {
-        return generateRegularPoly("hexagon", type, center, radius);
+    public Tabody newHexagon(String type, float x, float y, float radius) {
+        return generateRegularPoly("hexagon", type, x, y, radius);
     }
 
     /**
      * Creates an Heptagon with centroid = center
      * @param type "dynamic" or "static"
-     * @param center Center of the polygon
+     * @param x X Center of the regular polygon
+     * @param y Y Center of the regular polygon
      * @param radius Radius of the polygon
      * @return A new Tabody instance
      */
-    public Tabody newHeptagon(String type, Vector2 center, float radius) {
-        return generateRegularPoly("heptagon", type, center, radius);
+    public Tabody newHeptagon(String type, float x, float y, float radius) {
+        return generateRegularPoly("heptagon", type, x, y, radius);
     }
 
     /**
      * Creates an Octagon with centroid = center
      * @param type "dynamic" or "static"
-     * @param center Center of the polygon
+     * @param x X Center of the regular polygon
+     * @param y Y Center of the regular polygon
      * @param radius Radius of the polygon
      * @return A new Tabody instance
      */
-    public Tabody newOctagon(String type, Vector2 center, float radius) {
-        return generateRegularPoly("octagon", type, center, radius);
+    public Tabody newOctagon(String type, float x, float y, float radius) {
+        return generateRegularPoly("octagon", type, x, y, radius);
     }
 
-    private Tabody generateRegularPoly(String name, String type, Vector2 center, float rad) {
+    private Tabody generateRegularPoly(String name, String type, float x, float y, float rad) {
         // Scale proportions:
-        center.set(center.x / meterSize, center.y / meterSize);
+        x /= meterSize;
+        y /= meterSize;
         rad /= meterSize;
 
         PolygonShape polygonShape;
@@ -428,8 +441,6 @@ public class Tabox2D {
         Polygon polyForBox = new Polygon();
         polyForBox.setVertices(rawPoints);
 
-        //polyForBox.translate(center.x, center.y);
-
         Rectangle boundingRect = polyForBox.getBoundingRectangle();
         float boxX = boundingRect.x;
         float boxY = boundingRect.y;
@@ -437,18 +448,7 @@ public class Tabox2D {
         float boxH = boundingRect.getHeight();
 
         Vector2 aabbCenter = new Vector2(boxX + boxW / 2, boxY + boxH / 2);
-        Vector2 centroid = centroidOf(pts);
-
-        pf("aabb Center x: %f\n", aabbCenter.x);
-        pf("aabb Center y: %f\n", aabbCenter.y);
-
-        pf("centroid x: %f\n", centroid.x);
-        pf("centroid y: %f\n", centroid.y);
-
-
-        defPoly.position.set(0, 0);
-
-        defPoly.position.set(center.x, center.y);
+        defPoly.position.set(x, y);
 
         Tabody regularPoly = new Tabody();
         regularPoly.body = world.createBody(defPoly);
@@ -467,7 +467,7 @@ public class Tabox2D {
         fixtureBox.shape = polygonShape;
         fixtureBox.density = 1;
         fixtureBox.friction = 1;
-        fixtureBox.restitution = 0.1f;
+        fixtureBox.restitution = 0;
 
         ////////////////////////////////////////
         regularPoly.w = boxW * meterSize;//radius * 2 * meterSize;
@@ -515,48 +515,32 @@ public class Tabox2D {
 
         //polyForBox.translate(center.x, center.y);
 
-        Rectangle boundingRect = polyForBox.getBoundingRectangle();
-        float boxX = boundingRect.x;
-        float boxY = boundingRect.y;
-        float boxW = boundingRect.getWidth();
-        float boxH = boundingRect.getHeight();
-
-        Vector2 aabbCenter = new Vector2(boxX + boxW / 2, boxY + boxH / 2);
-        Vector2 centroid = centroidOf(pts);
-
-        pf("aabb Center x: %f\n", aabbCenter.x);
-        pf("aabb Center y: %f\n", aabbCenter.y);
-
-        pf("centroid x: %f\n", centroid.x);
-        pf("centroid y: %f\n", centroid.y);
-
-
-        defPoly.position.set(0, 0);
-
+        Rectangle boundingRect = boundingBoxOf(polyForBox.getVertices());
+        Vector2 aabbCenter = new Vector2(
+            boundingRect.x + boundingRect.width / 2,
+            boundingRect.y + boundingRect.height / 2
+        );
         defPoly.position.set(aabbCenter.x, aabbCenter.y);
 
         Tabody regularPoly = new Tabody();
         regularPoly.body = world.createBody(defPoly);
-        //regularPoly.body.setFixedRotation(true);
         polygonShape = new PolygonShape();
 
-        //polygonShape.setAsBox(w / 2, h / 2);
         for(int i = 0; i < pts.length - 1; i += 2) {
             pts[i] -= aabbCenter.x;
             pts[i + 1] -= aabbCenter.y;
         }
-        //rawPoints[0] += 0.5;
         polygonShape.set(pts);
 
         FixtureDef fixtureBox = new FixtureDef();
         fixtureBox.shape = polygonShape;
         fixtureBox.density = 1;
         fixtureBox.friction = 1;
-        fixtureBox.restitution = 0.1f;
+        fixtureBox.restitution = 0;
 
         ////////////////////////////////////////
-        regularPoly.w = boxW * meterSize;//radius * 2 * meterSize;
-        regularPoly.h = boxH * meterSize;//radius * 2 * meterSize;
+        regularPoly.w = boundingRect.width * meterSize;//radius * 2 * meterSize;
+        regularPoly.h = boundingRect.height * meterSize;//radius * 2 * meterSize;
         regularPoly.fixture = fixtureBox;
         regularPoly.bodyType = "poly";
         ////////////////////////////////////////
@@ -565,6 +549,125 @@ public class Tabox2D {
         polygonShape.dispose();
         tabodies.add(regularPoly);
         return regularPoly;
+    }
+
+    /**
+     * Combines different tabodies in a single one.<br/>
+     * This is useful to have a body with different fixtures in an easy way
+     * @param tabodyArray Array of tabodies to combine
+     * @return A new Tabody
+     */
+    public Tabody combine(String type, Tabody... tabodyArray) {
+        if(tabodyArray.length > 0) {
+
+            Tabody newTabody = new Tabody();
+
+            BodyDef bodyDef = new BodyDef();
+            setType(bodyDef, type);
+
+            //List<Vector2> centers = new ArrayList<Vector2>();
+
+            //AABB center of combines bodies:
+            List<Vector2> ptsCombined = new ArrayList<Vector2>();
+            for(int i = 0; i < tabodyArray.length; i++) {
+                //centers.add(tabodyArray[i].body.getWorldCenter());
+                Tabody t = tabodyArray[i];
+                for(Fixture f : t.body.getFixtureList()) {
+                    if(f.getShape() instanceof CircleShape) {
+                        CircleShape cS = (CircleShape)f.getShape();
+                        // top-left and bottom-right of circle bounds:
+                        ptsCombined.add(new Vector2(
+                                cS.getPosition().x - cS.getRadius(),
+                                cS.getPosition().y + cS.getRadius()));
+                        ptsCombined.add(new Vector2(
+                                cS.getPosition().x + cS.getRadius(),
+                                cS.getPosition().y - cS.getRadius()));
+                    } else if(f.getShape() instanceof PolygonShape) {
+                        PolygonShape pS = (PolygonShape)f.getShape();
+                        for(int n = 0; n < pS.getVertexCount(); n++){
+                            Vector2 tmp = new Vector2();
+                            pS.getVertex(n, tmp);
+                            ptsCombined.add(new Vector2(
+                                t.body.getPosition().x + tmp.x,
+                                t.body.getPosition().y + tmp.y));
+                        }
+                    }
+                }
+            }
+
+            Rectangle rectangle = boundingBoxOf(ptsCombined);
+
+            bodyDef.position.set(
+                rectangle.x + rectangle.width / 2,
+                rectangle.y + rectangle.height / 2);
+
+            newTabody.w = rectangle.width * meterSize;
+            newTabody.h = rectangle.height * meterSize;
+            newTabody.body = world.createBody(bodyDef);
+
+            for(int i = 0;  i < tabodyArray.length; i++) {
+
+                Tabody t = tabodyArray[i];
+
+                for(Fixture f : t.body.getFixtureList()) {
+                    FixtureDef fixtureDef = new FixtureDef();
+
+                    fixtureDef.density = f.getDensity();
+                    fixtureDef.friction = f.getFriction();
+                    fixtureDef.restitution = f.getRestitution();
+                    // Delta X and Y for translating the shapes:
+                    float dx = t.body.getWorldCenter().x - bodyDef.position.x;
+                    float dy = t.body.getWorldCenter().y - bodyDef.position.y;
+                    if(f.getShape() instanceof CircleShape) {
+
+                        CircleShape circleShape = (CircleShape)f.getShape();
+                        circleShape.setPosition(new Vector2(
+                            circleShape.getPosition().x + dx,
+                            circleShape.getPosition().y + dy
+                        ));
+                        fixtureDef.shape = circleShape;
+
+                    } else if(f.getShape() instanceof PolygonShape) {
+
+                        PolygonShape polygonShape = (PolygonShape)f.getShape();
+
+                        float[] pts = new float[polygonShape.getVertexCount() * 2];
+                        int vertexIndex = 0;
+                        // delta X and delta Y respect to the main body:
+                        dx = t.body.getPosition().x - bodyDef.position.x;
+                        dy = t.body.getPosition().y - bodyDef.position.y;
+                        for(int j = 0; j < pts.length - 1; j += 2) {
+                            Vector2 tmp = new Vector2();
+                            polygonShape.getVertex(vertexIndex, tmp);
+                            pts[j] = tmp.x + dx;
+                            pts[j + 1] = tmp.y + dy;
+                            vertexIndex++;
+                        }
+                        polygonShape.set(pts);
+                        fixtureDef.shape = polygonShape;
+
+                    } else if(f.getShape() instanceof EdgeShape) {
+                        EdgeShape edgeShape = (EdgeShape)f.getShape();
+                        fixtureDef.shape = edgeShape;
+                    }
+
+                    newTabody.body.createFixture(fixtureDef);
+                }
+            }
+
+            // Destroy:
+            for(int i = 0; i < tabodyArray.length; i++) {
+                world.destroyBody(tabodyArray[i].body);
+                tabodies.remove(tabodyArray[i]);
+            }
+
+            // Add new Tabody:
+            tabodies.add(newTabody);
+            return newTabody;
+        } else {
+            System.err.println("No tabodies specified in Tabox2D.combine()");
+            return null;
+        }
     }
 
 
@@ -608,6 +711,20 @@ public class Tabox2D {
     public void dispose() {
         world.dispose();
         renderer.dispose();
+    }
+
+    /**
+     * Destroys the given Tabody object
+     * @param tabody Tabody object to destroy
+     */
+    public void destroy(Tabody tabody) {
+        for(Tabody t : tabodies) {
+            if(t.equals(tabody)) {
+                world.destroyBody(t.body);
+                tabodies.remove(tabody);
+                return;
+            }
+        }
     }
 
     /**
@@ -669,6 +786,38 @@ public class Tabox2D {
         return new Vector2(centroidX / pts.size(), centroidY / pts.size());
     }
 
+    /**
+     * Returns the bounding box of the given polygon
+     * @param ptsCombined The points as Vector2 list
+     * @return A Rectangle object
+     */
+    private Rectangle boundingBoxOf(List<Vector2> ptsCombined) {
+        float[] rawPtsCombined = new float[ptsCombined.size() * 2];
+        int ptsCombinedIndex = 0;
+        for(int i = 0; i < rawPtsCombined.length - 1; i += 2) {
+            rawPtsCombined[i] = ptsCombined.get(ptsCombinedIndex).x;
+            rawPtsCombined[i + 1] = ptsCombined.get(ptsCombinedIndex).y;
+            ptsCombinedIndex++;
+        }
+
+        Polygon polygon = new Polygon();
+        polygon.setVertices(rawPtsCombined);
+        Rectangle boundingRect = polygon.getBoundingRectangle();
+        return boundingRect;
+    }
+
+    /**
+     * Returns the bounding box of the given polygon
+     * @param ptsCombined The points as a float[] object
+     * @return A Rectangle object
+     */
+    private Rectangle boundingBoxOf(float[] ptsCombined) {
+        Polygon polygon = new Polygon();
+        polygon.setVertices(ptsCombined);
+        Rectangle boundingRect = polygon.getBoundingRectangle();
+        return boundingRect;
+    }
+
     private void setType(BodyDef def, String type) {
         type = type.toLowerCase();
         if(type.equals("d")) {
@@ -678,9 +827,17 @@ public class Tabox2D {
         } else if(type.equals("k")) {
             def.type = BodyDef.BodyType.KinematicBody;
         } else {
-            perr("'d', 's' or 'k' expected");
+            System.err.println("'d', 's' or 'k' expected");
         }
     }
+
+    @Override
+    public Object clone() {
+        return this;
+    }
+
+
+
 
     /**
      * Represents a Tabody object<br/>
@@ -700,7 +857,7 @@ public class Tabox2D {
          * @param impulse The impulse magnitude
          */
         public void impulseX(float impulse) {
-            linearImpulse(new Vector2(impulse, 0));
+            impulse(new Vector2(impulse, 0));
         }
 
         /**
@@ -708,47 +865,54 @@ public class Tabox2D {
          * @param impulse The impulse magnitude
          */
         public void impulseY(float impulse) {
-            linearImpulse(new Vector2(0, impulse));
+            impulse(new Vector2(0, impulse));
         }
 
         /**
          * Impulse in the given vector
-         * @param impulse
+         * @param impulse The impulse magnitude
          */
-        public void linearImpulse(Vector2 impulse) {
-            linearImpulse(impulse.x, impulse.y);
+        public void impulse(Vector2 impulse) {
+            impulse(impulse.x, impulse.y);
         }
 
         /**
          * Impulse in the given components
-         * @param ix
-         * @param iy
+         * @param ix Impulse magnitude in X axis
+         * @param iy Impulse magnitude in Y axis
          */
-        public void linearImpulse(float ix, float iy) {
-            body.applyLinearImpulse(new Vector2(ix, iy), body.getWorldCenter(), true);
+        public void impulse(float ix, float iy) {
+            float forceMultiplier = 1;
+            if(!rawForces) {
+                forceMultiplier = body.getMass();
+            }
+            body.applyLinearImpulse(
+                    new Vector2(ix * forceMultiplier, iy * forceMultiplier),
+                    body.getWorldCenter(), true);
         }
 
         /**
-         * Attach a texture to the Tabody object
+         * Attaches a texture to the Tabody object
          * @param fileNamePath Path or name of the file
          * @param scope Internal "i" or external "e"
-         * @param gap Gap (in percentage) of the image width respect to real body dimensions
+         * @param gap Gap (in percentage) of the image width respect to real body dimensions<br/>
+         *            2 = texture is the double size of body proportions
          * @return Tabody object
          */
         public Tabody texture(String fileNamePath, String scope, float gap) {
-            Texture texture = null;
+            Texture texture;
             if(scope.toLowerCase().equals("i")) {
                 texture = new Texture(Gdx.files.internal(fileNamePath));
             } else if(scope.toLowerCase().equals("e")) {
                 texture = new Texture(Gdx.files.external(fileNamePath));
             } else {
-                perr("texture(), second parameter must be 'i' or 'e', using 'i'");
+                System.err.println("setTexture(), second parameter must be 'i' or 'e', using 'i'");
                 texture = new Texture(Gdx.files.internal(fileNamePath));
             }
 
-            // Filter for the texture:
-            Texture.TextureFilter tMin = null;
-            Texture.TextureFilter tMag = null;
+            // Filter for the setTexture:
+            Texture.TextureFilter tMin;
+            Texture.TextureFilter tMag;
             if(filterMin.equals("linear")) {
                 tMin = Texture.TextureFilter.Linear;
             } else {
@@ -780,29 +944,56 @@ public class Tabox2D {
          * @return Tabody object
          */
         public Tabody texture(String fileNamePath, String scope) {
-            return texture(fileNamePath, scope, 1.05f);
+            return texture(fileNamePath, scope, 1f);
         }
-    }
 
-    
+        /**
+         * Attach a texture to the Tabody object
+         * @param fileNamePath Path or name of the file
+         * @return Tabody object
+         */
+        public Tabody texture(String fileNamePath) {
+            return texture(fileNamePath, "i", 1.02f);
+        }
 
-    @Override
-    public Object clone() {
-        return this;
-    }
+        /**
+         * Sets density of Tabody object
+         * @param den Restitution (0 to 1)
+         * @return The same Tabody object
+         */
+        public Tabody density(float den) {
+            for(Fixture f : this.body.getFixtureList()) {
+                f.setDensity(den);
+            }
+            return this;
+        }
 
-    private static void pl(Object o){
-        System.out.println(o);
-    }
-    private static void pf(String f, Object o){
-        System.out.printf(f, o);
-    }
+        /**
+         * Sets friction of Tabody object
+         * @param fri Friction (0 to 1)
+         * @return The same Tabody object
+         */
+        public Tabody friction(float fri) {
+            for(Fixture f : this.body.getFixtureList()) {
+                f.setFriction(fri);
+            }
+            return this;
+        }
 
-    private static void perr(Object o){
-        System.err.println(o);
-    }
+        /**
+         * Sets restitution of Tabody object
+         * @param rest Restitution (0 to 1)
+         * @return The same Tabody object
+         */
+        public Tabody restitution(float rest) {
+            for(Fixture f : this.body.getFixtureList()) {
+                f.setRestitution(rest);
+            }
+            return this;
+        }
 
-    private static String nl() {
-        return System.getProperty("line.separator");
+        public float getMass() {
+            return this.body.getMass();
+        }
     }
 }
