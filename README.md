@@ -1,5 +1,3 @@
-![Tabox2D logo](http://s10.postimg.org/v5tgsq7fd/logo_Tabox2_D.png)
-
 Inspired by [AnAL.lua](https://love2d.org/wiki/AnAL) and [FlxBox2D](https://github.com/flixel-gdx/flixel-gdx-box2d) Tabox2D was born, a wrapper class to ease body-texture management in Box2D (LibGDX).
 
 [![License](http://img.shields.io/:license-MIT-blue.svg)](http://doge.mit-license.org)
