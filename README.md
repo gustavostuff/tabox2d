@@ -104,6 +104,6 @@ Tabox2D does this:
 it doesn't:
 
 * Cover the joints part
-* Cover other Box2D API (other than the used above)
+* Cover other Box2D API
 
 This is still a work in progress, thanks for your feedback!
