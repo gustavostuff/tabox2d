@@ -94,16 +94,16 @@ The result would be something like:
 
 Tabox2D does this:
 
-* Uses the Tabody entity, easier to manage than a normal Body
-* Attaches textures to bodies in terms of position, scale and rotation
-* Applies linear impulses through Tabody class
+* Creates multi-shaped bodies in one line!
 * Makes regular/irregluar polygons in a simple way
+* Attaches textures to bodies in terms of position, scale and rotation
+* Uses the Tabody entity, easier to manage than a normal Body
+* Applies linear impulses through Tabody class
 * Tabox2D.newBox() takes X and Y as the left-bottom corner, then full W and H
-* Creates multi-shaped bodies in one line
 
 it doesn't:
 
 * Cover the joints part
-* Cover the Box2D API (other than the used above)
+* Cover other Box2D API (other than the used above)
 
 This is still a work in progress, thanks for your feedback!
