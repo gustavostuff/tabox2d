@@ -1,6 +1,7 @@
 Inspired by [Lope2D](https://love2d.org/wiki/Lope2D) and [FlxBox2D](https://github.com/flixel-gdx/flixel-gdx-box2d) Tabox2D was born, a simple layer class to ease body-texture management in Box2D (LibGDX).
 
 [![License](http://img.shields.io/:license-MIT-blue.svg)](http://doge.mit-license.org)
+[![Version](http://img.shields.io/:version-0.0.1-green.svg)](https://github.com/tavuntu/tabox2d/blob/master/README.md)
 
 Here's an example of an application using Tabox2D:
 
