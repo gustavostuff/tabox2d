@@ -5,11 +5,6 @@ Inspired by [Lope2D](https://love2d.org/wiki/Lope2D) and [FlxBox2D](https://gith
 Here's an example of an application class using Tabox2D:
 
 ```java
-import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
-import com.tavuntu.example.Tabox2D.Tabody;
-
 public class Box2DTest extends ApplicationAdapter {
     Tabox2D t;
     float w ,h;
@@ -33,11 +28,11 @@ public class Box2DTest extends ApplicationAdapter {
         rad = w / 16;
         // Regular bodies:
         t.newSquare("d", 100, 100, rad).texture("square.png").rotate(45);// 1/8 turn.
-        t.newPentagon("d", 100, 200, rad).texture("pentagon.png").density(0.1f);// Light.
+        t.newPentagon("d", 100, 200, rad).texture("pentagon_hi_res.png").density(0.1f);// Light.
         t.newHexagon("d", 100, 300, rad).texture("hexagon.png").friction(0);// Like ice.
         t.newHeptagon("d", 100, 400, rad).texture("heptagon.png").restitution(0.9f);// Bouncy.
         t.newOctagon("d", 200, 200, rad).texture("octagon.png");
-        t.newBall("d", 200, 300, rad).texture("ball.png");
+        t.newBall("d", 200, 300, rad).texture("ball_low_res.png");
         t.newTriangle("d", 200, 400, rad).texture("triangle.png").forceY(-10);// Likes the floor.
 
         // Irregular:
@@ -46,17 +41,25 @@ public class Box2DTest extends ApplicationAdapter {
         t.newPoly("d", pts1).texture("irr1.png");
         t.newPoly("d", pts2).texture("irr2.png");
 
-        // Compound bodies:
+        // Compound bodies (Tabox2D.Tabody)
+
         Tabody bucket = t.combine("d",
-            t.newBox("d", 300, 200, 30, 150),
-            t.newBox("d", 330, 200, 90, 30),
-            t.newBox("d", 420, 200, 30, 150)
+                t.newBox("d", 250, 200, 30, 150),
+                t.newBox("d", 280, 200, 90, 30),
+                t.newBox("d", 370, 200, 30, 150)
         ).texture("bucket.png");
 
+        Tabody siameseBucket = t.combine("d",
+                t.newBox("d", 420, 200, 30, 150),
+                t.newBox("d", 450, 200, 90, 30),
+                t.newBox("d", 540, 200, 30, 150),
+                t.newBall("d", 570, 300, 20)
+        ).texture("siameseBucket.png");
+
         Tabody cross = t.combine("d",
-            t.newBox("d", 500, 130, 40, 80),
-            t.newBox("d", 480, 150, 20, 40),
-            t.newBox("d", 540, 150, 20, 40)
+                t.newBox("d", 510, 20, 20, 40),
+                t.newBox("d", 530, 0,  40, 80),
+                t.newBox("d", 570, 20, 20, 40)
         ).texture("cross.png");
 
         //t.destroy(bucket);// Destroys a Tabody.
@@ -81,14 +84,12 @@ public class Box2DTest extends ApplicationAdapter {
     public void dispose() {
         t.dispose();
     }
-
 }
-
 ```
 
 The result would be something like:
 
-![Tabox2D example](http://s27.postimg.org/gatt0as8z/ss1.png)
+[![ss.png](https://s24.postimg.org/pdhi2v379/image.png)](https://postimg.org/image/skc1mhnn5/)
 
 ***
 
@@ -104,6 +105,6 @@ Tabox2D does this:
 it doesn't:
 
 * Cover the joints part
-* Cover other Box2D API
+* Cover other Box2D API (yet)
 
 This is still a work in progress, thanks for your feedback!

@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2015 Gustavo Alberto Lara Gómez
+    Copyright (c) 2015-2017 Gustavo Alberto Lara Gómez
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -39,13 +39,12 @@ import com.badlogic.gdx.physics.box2d.EdgeShape;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.Transform;
 import com.badlogic.gdx.physics.box2d.World;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import javafx.scene.control.Tab;
 
 /**
  * Tabox2D, singleton class for body-texture management
@@ -344,11 +343,11 @@ public class Tabox2D {
      * @param type "dynamic" or "static"
      * @param x X Center of the regular polygon
      * @param y Y Center of the regular polygon
-     * @param radius Radius of the polygon
+     * @param size Radius of the polygon
      * @return A new Tabody instance
      */
-    public Tabody newSquare(String type, float x, float y, float radius) {
-        return generateRegularPoly("square", type, x, y, radius);
+    public Tabody newSquare(String type, float x, float y, float size) {
+        return generateRegularPoly("square", type, x, y, size);
     }
 
     /**
@@ -519,8 +518,8 @@ public class Tabox2D {
 
         Rectangle boundingRect = boundingBoxOf(polyForBox.getVertices());
         Vector2 aabbCenter = new Vector2(
-            boundingRect.x + boundingRect.width / 2,
-            boundingRect.y + boundingRect.height / 2
+                boundingRect.x + boundingRect.width / 2,
+                boundingRect.y + boundingRect.height / 2
         );
         defPoly.position.set(aabbCenter.x, aabbCenter.y);
 
@@ -577,21 +576,31 @@ public class Tabox2D {
                 for(Fixture f : t.body.getFixtureList()) {
                     if(f.getShape() instanceof CircleShape) {
                         CircleShape cS = (CircleShape)f.getShape();
+                        //Convert coordinates of circle:
+                        Vector2 vec = new Vector2();
+                        Body body = f.getBody();
+
+                        Transform transform = body.getTransform();
+                        CircleShape shape = (CircleShape) f.getShape();
+                        vec.set(shape.getPosition());
+                        transform.mul(vec);
+
                         // top-left and bottom-right of circle bounds:
                         ptsCombined.add(new Vector2(
-                                cS.getPosition().x - cS.getRadius(),
-                                cS.getPosition().y + cS.getRadius()));
+                                vec.x - cS.getRadius(),
+                                vec.y + cS.getRadius()));
                         ptsCombined.add(new Vector2(
-                                cS.getPosition().x + cS.getRadius(),
-                                cS.getPosition().y - cS.getRadius()));
+                                vec.x + cS.getRadius(),
+                                vec.y - cS.getRadius()));
                     } else if(f.getShape() instanceof PolygonShape) {
                         PolygonShape pS = (PolygonShape)f.getShape();
+                        // Get points relative to origin of polygon (0, 0):
                         for(int n = 0; n < pS.getVertexCount(); n++){
                             Vector2 tmp = new Vector2();
                             pS.getVertex(n, tmp);
                             ptsCombined.add(new Vector2(
-                                t.body.getPosition().x + tmp.x,
-                                t.body.getPosition().y + tmp.y));
+                                    t.body.getPosition().x + tmp.x,
+                                    t.body.getPosition().y + tmp.y));
                         }
                     }
                 }
@@ -600,8 +609,8 @@ public class Tabox2D {
             Rectangle rectangle = boundingBoxOf(ptsCombined);
 
             bodyDef.position.set(
-                rectangle.x + rectangle.width / 2,
-                rectangle.y + rectangle.height / 2);
+                    rectangle.x + rectangle.width / 2,
+                    rectangle.y + rectangle.height / 2);
 
             newTabody.w = rectangle.width * meterSize;
             newTabody.h = rectangle.height * meterSize;
@@ -624,8 +633,8 @@ public class Tabox2D {
 
                         CircleShape circleShape = (CircleShape)f.getShape();
                         circleShape.setPosition(new Vector2(
-                            circleShape.getPosition().x + dx,
-                            circleShape.getPosition().y + dy
+                                circleShape.getPosition().x + dx,
+                                circleShape.getPosition().y + dy
                         ));
                         fixtureDef.shape = circleShape;
 
