@@ -1,8 +1,8 @@
-Inspired by [Lope2D](https://love2d.org/wiki/Lope2D) and [FlxBox2D](https://github.com/flixel-gdx/flixel-gdx-box2d) Tabox2D was born, a wrapper class to ease body-texture management in Box2D (LibGDX).
+Inspired by [Lope2D](https://love2d.org/wiki/Lope2D) and [FlxBox2D](https://github.com/flixel-gdx/flixel-gdx-box2d) Tabox2D was born, a simple layer class to ease body-texture management in Box2D (LibGDX).
 
 [![License](http://img.shields.io/:license-MIT-blue.svg)](http://doge.mit-license.org)
 
-Here's an example of an application class using Tabox2D:
+Here's an example of an application using Tabox2D:
 
 ```java
 public class Box2DTest extends ApplicationAdapter {
