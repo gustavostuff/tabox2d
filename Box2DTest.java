@@ -1,13 +1,3 @@
-[![log-tabox2d.png](https://i.postimg.cc/PfZxPBXs/log-tabox2d.png)](https://postimg.cc/HjYHNv8B)
-
-Inspired by [Lope2D](https://love2d.org/wiki/Lope2D) and [FlxBox2D](https://github.com/flixel-gdx/flixel-gdx-box2d) Tabox2D was born, a simple layer class to ease body-texture management in Box2D (LibGDX).
-
-[![License](http://img.shields.io/:license-MIT-blue.svg)](http://doge.mit-license.org)
-[![Version](http://img.shields.io/:version-0.0.1-green.svg)](https://github.com/tavuntu/tabox2d/blob/master/README.md)
-
-Here's an example of an application using Tabox2D:
-
-```java
 public class Box2DTest extends ApplicationAdapter {
     Tabox2D t;
     float w ,h;
@@ -88,30 +78,3 @@ public class Box2DTest extends ApplicationAdapter {
         t.dispose();
     }
 }
-```
-
-The result would be something like:
-
-[![Captura-de-pantalla-2019-10-20-11-43-02.png](https://i.postimg.cc/vmLCFNPF/Captura-de-pantalla-2019-10-20-11-43-02.png)](https://postimg.cc/Lq5xjNKN)
-
-***
-
-Tabox2D does this:
-
-* Creates multi-shaped bodies in one line!
-* Makes regular/irregluar polygons in a simple way
-* Attaches textures to bodies in terms of position, scale and rotation
-* Uses the Tabody entity, easier to manage than a normal Body
-* Applies linear impulses through Tabody class
-* Tabox2D.newBox() takes X and Y as the left-bottom corner, then full W and H
-
-it doesn't:
-
-* Cover the joints part
-* Cover other Box2D API (yet)
-
-## To-do
-
-MAke a jar file and put it on Maven/Gradle repos (help needed, I'm not a Java Dev)
-
-This is still a work in progress, thanks for your feedback!
