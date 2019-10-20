@@ -109,8 +109,9 @@ it doesn't:
 * Cover the joints part
 * Cover other Box2D API (yet)
 
-## To-do
+## Notes
 
-* Make a jar file and put it on Maven/Gradle repos (help needed, I'm not a Java Dev)
+* This has only been tested on Desktop libGDX projets, not Android, iOS, or anything else 
+* No Maven/Gradle artifact for this yet (help needed, I'm not a Java Dev)
 
 This is still a work in progress, thanks for your feedback!
